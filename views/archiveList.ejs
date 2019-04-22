@@ -1,0 +1,33 @@
+<% include partials/header %>
+
+<div class="container">
+<h2>All list archived</h2>
+
+<table class="table table-small table-hover">
+   <thead class="thead-light">
+       <tr>
+       <th scope="col">List</th>
+       <th scope="col">Date Created</th>
+       <th scope="col">Date Archived</th>
+       <th scope="col">View</th>
+       </tr>
+    </thead>
+   <tbody>
+                       
+    <% archivedLists.forEach(function(list){ %>
+        <tr>
+            <td><%= list.title %> </td>
+            <td><%= list.dateCreated %></td>
+            <td><%= list.dateArchived %></td>
+            <td>
+                <form action="/archiveView/<%= list._id %>" method="GET" >
+                    <input type="submit" class="btn btn-outline-success" value="View" >
+                </form>
+            </td>
+        </tr>
+    <% }) %>
+   </tbody>
+</table>
+</div>
+
+<% include partials/footer %>

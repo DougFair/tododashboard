@@ -1,0 +1,14 @@
+<% include partials/header %>
+
+<div class="container">
+    
+    <h4>You list has been succesfully archived</h4>
+    <h4> Click to return to Home page</h4>
+
+    <form action="/deleteList/<%= originalID %>?_method=DELETE" method="POST">
+        <button type="submit" class="btn btn-outline-success">Home</button>
+    </form>
+    
+
+</div>
+<% include partials/footer %>

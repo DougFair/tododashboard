@@ -1,0 +1,24 @@
+<% include partials/header %>
+
+<div class="container">
+<br><br>
+
+
+   <form action = "/eventEdit/:id?_method=PUT" method="POST">
+   
+   <div class="form-group">
+        <p>Edit the event as required:</p>
+       <input type="hidden" name="eventCreated" value="<%= eventCreated %>">
+       <input type="text" name="event" value="<%= event %>" class="form-control col-6">
+       <br>
+       <p>Current date is <%= moment(eventDueDate).format("DD/MM/YYYY") %>. Enter new date if required:</p>
+       <input type="date" name="eventDueDate" value="<%= eventDueDate %>" class="form-control col-2 mb-2">
+       <input type="submit" class="btn btn-outline-success" class="form-control">
+    </div>
+    </form>
+
+
+</div>
+
+
+<% include partials/footer %>

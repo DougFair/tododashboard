@@ -1,0 +1,610 @@
+<% include partials/header %>
+<% var dueTodayArray = [] %>
+<% var completedTodayArray = [] %>
+<% var overdueArray = [] %>
+<% var allDaysDueObjectArray = [] %>
+<% var sortedDifferenceArray= [] %>
+<% var activeLists = [] %>
+<% var noDueDate = [] %>
+<% var todayDDMMYY = moment.tz('Australia/Sydney').format("DD/MM/YY") %>
+<% var today = moment.tz('Australia/Sydney') %>
+<% var nanArray = [] %>
+
+<!--Sorting the active tasks-->
+<% lists.forEach(function(array){ %>
+      <%console.log("sorted   " + JSON.stringify(array))%>
+    <% if (!activeLists.includes(array.title)){ %>
+      <%  activeLists.push(array.title) %>
+    <% } %>
+   <% array.list.forEach(function(item){ %>
+            <% console.log("eachcomp " + item.completed + item.item)%>
+            <% if (item.completed == "false") { %>
+                <% var obj = {}%>
+                <% var dueTodayDDMMYY = moment(item.dueDate).format("DD/MM/YY")%>
+                
+                <% if (dueTodayDDMMYY == todayDDMMYY ) { %>
+                <% dueTodayArray.push(item.item) %>
+                <% } %>
+                
+                <% if (item.dueDate) {%>
+                <% var dueToday = moment(item.dueDate)%>  
+                <% var daysToDue = dueToday.diff(today, 'days') %>
+          
+                <% item.daysToDue = daysToDue %>
+                <% item.listTitle = array.title %>
+                <% item.completed = item.completed %>
+                <% allDaysDueObjectArray.push(item) %>
+     
+              
+                <% sortedDifferenceArray = allDaysDueObjectArray.sort(function(a, b){return a.daysToDue-b.daysToDue}) %>
+                <% } else {%>
+
+                <%  item.listTitle = array.title %>
+                <%  item.dueDate = "None" %>
+                <%  item.daysToDue = "-" %>
+                <%  nanArray.push(item) %>
+                <% } %>
+                
+                <% if (daysToDue < 0) { %>
+                    <% overdueArray.push(item.item) %>
+                <% } %>
+         <% } %>           
+            <% if (item.completed != "false") { %>
+            <% console.log("comp" + item.item) %>
+                <% if (item.dateCompleted == todayDDMMYY) { %>
+                    <% completedTodayArray.push(item.item) %>
+                <% } %>
+            <% } %>
+    
+    <% }) %>  
+<% }) %>       
+
+<% nanArray.forEach(function(item){%>
+    <%sortedDifferenceArray.push(item)%>
+<% }); %>
+
+       
+<!--Sorting events-->
+<% var eventDueTodayArray = [] %>
+<% var allEventsDueObjectArray = [] %>
+<% var sortedEventDifferenceArray %>
+<% var activeEvents = [] %>
+<% events.forEach(function(array){ %>
+    <% if (!activeEvents.includes(array.title)){ %>
+      <%  activeEvents.push(array.title) %>
+    <% } %>
+       <% array.eventList.forEach(function(event){ %>
+    
+                    <% var eventDueTodayDDMMYY = moment(event.eventDueDate).format("DD/MM/YY")%>
+                    <% var eventDueToday = moment(event.eventDueDate)%>     
+                    
+                    <% if (eventDueTodayDDMMYY == todayDDMMYY ) { %>
+                        <% eventDueTodayArray.push(event.event) %>
+                        <% } %>
+                    
+                    <% var daysToEventDue = eventDueToday.diff(today, 'days') %>
+
+                        <% event.daysToEventDue = daysToEventDue %>
+                        
+                        <%event.eventTitle = array.title%>
+                        <%event._id = array._id%>
+        
+                        <% allEventsDueObjectArray.push(event) %>
+
+                        <% sortedEventDifferenceArray = allEventsDueObjectArray.sort(function(a, b){return a.daysToEventDue-b.daysToEventDue}) %>
+                 
+    
+        <% }); %>       
+    <% }); %>      
+
+<!--Dashboard info-->
+
+<div class="container">
+<h6 class="d-flex justify-content-end align-items-end">Current temperature: <span id="temperature" ><%= temp %> degrees</span></h6>
+    <div class="row" >
+        <h4 id="dateBar" class="col-12"><%= timezone.tz('Australia/Sydney').format('dddd, MMMM Do, YYYY')%> | <span class="dateBarSpan">Week: </span> <%=timezone.tz('Australia/Sydney').format('w')%> | <span class="dateBarSpan">Day of the year:</span> <%=timezone.tz('Australia/Sydney').format('DDD')%> %></h4>
+    </div>
+<br>
+    <div class="row justify-content-around">
+        <div class="col-lg-3 col-md-7 col-12 mt-0 mb-2" id="dashboardTask">
+            <h5 class="dashboardTaskHead">Tasks</h5>
+            <h6>You have:</h6> 
+            <h6><%= sortedDifferenceArray.length %> tasks active</h6>
+            <h6><%= dueTodayArray.length %> task(s) due today</h6>
+            <h6><%= completedTodayArray.length %> task(s) completed today</h6>
+            <h6><%= overdueArray.length %> tasks overdue</h6>
+        </div>
+        <div class="col-lg-3 col-md-7 mt-0 mb-2" id="dashboardTask">
+            <h5 class="dashboardTaskHead">Tasks Due Today</h5>
+            <ul>
+            <% if (dueTodayArray.length ) { %>
+            <% dueTodayArray.forEach(function(task){ %>
+                    <h6><li><%= task %></li></h6>
+                <% }) %>
+            <% } else { %>
+                <h6> No tasks due today </h6>
+            <% } %>
+            </ul>
+        </div>
+        
+        <div class="col-lg-4 col-md-7 mt-0 mb-2" id="dashboardEvent">
+            <h5 class="dashboardEventHead">Events</h5>
+            <% if (!sortedEventDifferenceArray) {%>
+            <h6>You have no active events.</h6> 
+            <% } else { %>
+            <% eventCount = sortedEventDifferenceArray.length %>
+            <% if (eventCount == 1) { %>
+            <h6>You have 1 active event.</h6>
+            <% } else { %>
+            <h6>You have <%=eventCount %> active events.</h6>
+            <% } %>
+            <% if (eventCount > 5)  { %>
+            <h6>The next 5 events are:</h6>
+            <% } %>
+            <% for (var i = 0; i < eventCount; i++) { %>
+                <% if (i > 4) { %>
+                <% break %>
+                <% } %>
+            <% if (sortedEventDifferenceArray[i].daysToEventDue == 0) { %>
+             <h6>• <%=sortedEventDifferenceArray[i].event %><span style="color:IndianRed"> - Today</span></h6>
+            <% } else { %>
+            <h6>• <%=sortedEventDifferenceArray[i].event %> - <%= sortedEventDifferenceArray[i].daysToEventDue %> days</h6>
+                <% } %>
+            <% } %>
+            <% if (eventCount > 5)  { %>
+            <h6 class="eventHeading">See lists below for all events.</h6>
+            <% } %>       
+        
+        <% } %>
+        </div>
+        
+
+    </div>
+<br>
+</div>
+<!--Create list forms-->
+<div class="container">
+<div class="row d-flex justify-content-center" id="listTypeForm">
+
+    <form action="/createTaskList" method="POST">
+        <div class="input-group my-2  col-lg-12" id="createList">
+            <input type="text" class="form-control taskButton" name="title" placeholder="Create a task list">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary taskButton" type="submit" >Create</button>
+                </div>
+        </div>
+    </form>
+
+    <form action="/createEventList" method="POST">
+        <div class="input-group my-2  col-lg-12" id="createList">
+            <input type="text" class="form-control eventButton" name="title" placeholder="Create an event list">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-danger eventButton" type="submit" >Create</button>
+                </div>
+        </div>
+    </form>
+
+</div>
+<br>
+</div>
+
+
+<!--List Information-->
+
+<!--Active Items List-->
+
+<div class="container-fluid">  
+<hr COLOR="lightsteelblue" NOSHADE>
+<h3 class="pageHeading mb-3">List Display and Task Summary</h3> 
+    <% if (!activeLists.length && !activeEvents.length) { %>
+    <h5>There are currently no active task or event lists </h5>
+     <% } else { %>
+<div class="row justify-content-around mb-5 p-3">
+        <div class="col col-5" id="controlCentre" >
+        <h4 class="pageHeading d-flex justify-content-center">List Display</h4>
+        
+        <div class="row justify-content-around">
+          <% if (activeLists.length) { %>  
+            <div class="col col-lg-5 col-sm-12">
+            
+            <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col" class="heading">Tasks</th>
+                    </tr>
+                </thead>
+
+                    <tbody>
+                    <tr>
+                    <% lists.forEach(function(item) { %>
+                    <% if (activeLists.includes(item.title)) { %>
+                        <td class="d-flex justify-content-start">
+                        <form action="/listDisplay/<%=item._id%>?_method=PUT" method="POST" style="display:inline">
+                            <div class="form-check" style="display:inline">
+                            <% if (item.show) { %>
+                            <input class="form-check-input" type="checkbox" name="show" value="false" id="checkbox" checked onChange="this.form.submit()">
+                            <% } else { %>
+                             <input class="form-check-input" type="checkbox" name="show" value="true" id="checkbox" onChange="this.form.submit()">
+                            <% } %>
+                            </div>
+                        </form>
+                        <span class="pageHeading"><%= item.title %></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <% } %>
+                <% }) %>
+
+            </table>
+          </div> 
+        </div>
+    <% } %>
+    
+        <% if (sortedEventDifferenceArray) { %>
+            <div class="col-12 col-lg-5 col-sm-12">
+            <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th scope="col" class="eventHeading">Events</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <% events.forEach(function(item) { %>
+                <% if (activeEvents.includes(item.title)) { %>
+                    <td class="d-flex justify-content-start" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" >
+                    <form action="/eventDisplay/<%=item._id%>?_method=PUT" method="POST" style="display:inline">
+                        <div class="form-check" style="display:inline">
+                         <% if (item.show) { %>
+                            <input class="form-check-input" type="checkbox" name="show" value="false" id="checkbox" checked onChange="this.form.submit()">
+                            <% } else { %>
+                         <input class="form-check-input" type="checkbox" name="show" value="true" id="checkbox" onChange="this.form.submit()">
+                        <% } %>
+                        </div>
+                    </form>
+                    <span class="pageHeading"><%= item.title %></span>
+                    </td>
+                <% } %>
+            <% }) %>
+                </tr>
+            </tbody>
+            </table>
+            </div>
+            </div>
+            <% } %>
+        </div>
+</div>
+<% } %>    
+
+    <% if (sortedDifferenceArray.length) { %>
+    <% console.log("sortedDifferenceArray " + sortedDifferenceArray)%>
+    <div class="col-10 col-lg-6 col-sm-12"  id="controlCentre">
+        <h4 class="pageHeading">All active tasks</h4>
+        <div class="table-responsive">
+        <table class="table table-sm table-hover">
+           <thead>
+               <tr>
+               <th scope="col">Task</th>
+               <th scope="col">List</th></th>
+               <th scope="col">Days</th></th>
+               </tr>
+            </thead>
+           <tbody>
+            <% sortedDifferenceArray.forEach(function(arrayItem){ %>
+                <tr>
+                    <td class="d-flex justify-content-start">
+                    <form action="/itemCompleted?_method=PUT" method="POST" style="display:inline">
+                        <div class="form-check" style="display:inline">
+                            <input type="hidden" name="itemCreated" value="<%=arrayItem.itemCreated %>">
+                            <input type="hidden" name="dateCompleted" value=<%= timezone.tz('Australia/Sydney').format("DD/MM/YY") %>>
+                            <input class="form-check-input" type="checkbox" name="completed" value="true" id="checkbox" onChange="this.form.submit()">
+                        </div>
+                    </form>
+                    <span class="pageHeading"><%= arrayItem.item %></span>
+                    </td>
+                    <td class="pageHeading"><%= arrayItem.listTitle %></td>
+                    <% if (arrayItem.daysToDue == 0) { %>
+                       <td style="color:steelblue">Today</td> 
+                    <% } else { %>
+                    <td><%= arrayItem.daysToDue %></td>
+                    <% } %>
+                </tr>
+                <% }) %>
+                
+
+            </tbody>
+       </table>
+       </div>
+    </div>
+    <% } %>
+</div>
+
+<hr COLOR="lightsteelblue" NOSHADE>
+<br>
+
+
+<!--Specific Lists-->
+    <% if (lists.length) { %>
+    <div class="row justify-content-center">
+        <% if (!events.length) { %>
+        <div class="col d-flex justify-content-center" >
+        <% } %>
+        <div class="col col-lg-6 col-sm-12">
+        <h3 class="d-flex justify-content-center heading" >Tasks</h3>
+        <% lists.forEach(function(list){ %>
+            <% if (list.show) { %>
+            <div class="mb-5" id="listDisplay">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="d-inline-flex mb-0 heading"><%= list.title %></h4>
+                        <div class="d-inline-flex">
+                            <form  action="/archiveList/<%= list._id %>" method="POST" onsubmit="return confirm('Warning: the list will be archived but also removed from the list display window. If you want to return, click Cancel.')">
+                                <input type="hidden" name="dateArchived" value=<%= timezone.tz('Australia/Sydney').format("DD/MM/YYYY") %>>
+                                <button type="submit" class="form-control trash " ><i class="fas fa-archive"></i></button>
+                            </form>
+                            <form action="/deleteList/<%=list._id%>?_method=DELETE" method="POST" onsubmit="return confirm('Warning: If you proceed this will delete this list without archiving it. If you want to return, click Cancel.')">
+                                <button type="submit" class="form-control trash "  %>><i class="far fa-trash-alt" id="trashCan"></i></button>
+                            </form>
+                        </div>
+                    </div>
+          
+            <% if (list.list.length) { %>
+            <div class="table-responsive">
+               <table class="table table-sm table-hover">
+                   <thead>
+                       <tr>
+                       <th scope="col">Task</th>
+                       <th scope="col">Due</th>
+                       <th scope="col">Days</th>
+                       <th scope="col">Edit/Delete</th>
+                       </tr>
+                    </thead>
+                   <tbody>
+                        <% var completedCount=0 %>
+                        <% sortedDifferenceArray.forEach(function(sortedItem){ %>
+                        <%console.log("name: " + sortedItem.item)%>
+                        <% if (sortedItem.listTitle == list.title){ %>
+                                <% if (sortedItem.completed == "false"){ %>
+                                <% completedCount +=1 %>
+                                <tr>
+                                    <td class="d-flex justify-content-start">
+                                    <form action="/itemCompleted?_method=PUT" method="POST" style="display:inline">
+                                        <div class="form-check" style="display:inline">
+                                          <input type="hidden" name="itemCreated" value="<%=sortedItem.itemCreated %>">
+                                          <input type="hidden" name="dateCompleted" value=<%= timezone.tz('Australia/Sydney').format("DD/MM/YY") %>>
+                                          <input class="form-check-input" type="checkbox" name="completed" value="true" id="checkbox" onChange="this.form.submit()">
+                                        </div>
+                                    </form>
+                                    <span id="unstrike"><%= sortedItem.item %></span>
+                                    </td>
+                                    
+                                    <% if (sortedItem.daysToDue != "-") {%>
+                                    <td  id="unstrike"style="white-space: nowrap"><p><%= moment(sortedItem.dueDate).format("DD/MM/YY") %></p></td>  
+                                    <% } else { %>
+                                    <td  id="unstrike"style="white-space: nowrap"><p><%= sortedItem.dueDate %></p></td>  
+                                    <% } %>
+                                    <% if (sortedItem.daysToDue == 0) { %>
+                                    <td style="color:steelblue;">Today</td>    
+                                    <% } else { %>
+                                    <td><%= sortedItem.daysToDue %></td> 
+                                    <% } %>
+                                    
+                                    <td>
+                                        <form action="/itemEditForm/<%=list._id%>" method="POST">
+                                        <div class="form-inline justify-content-center">
+                                            <input type="hidden" name="itemCreated" value="<%=sortedItem.itemCreated %>">
+                                           <button type="submit" class="form-control trash" ><i class="far fa-edit" id="trashCan"></i></button>
+                                        </form>
+                                        <form action="/itemRemoved/<%=list._id%>?_method=PUT" method="POST">
+                                            <input type="hidden" name="itemCreated" value="<%=sortedItem.itemCreated %>">
+                                            <input type="hidden" name="completed" value="true">
+                                           <button type="submit" class="form-control trash" name="removed" value="true" ><i class="far fa-trash-alt" id="trashCan"></i></button>
+                                        </form>
+                                        </div>
+                                    </td>   
+                                    </tr>
+                            
+                            <% } %>
+                    
+                    <% } %>
+                <% }); %>
+
+
+                    
+                    <% list.list.forEach(function(arrayItem){ %>
+                        
+                        <% if (arrayItem.removed == "false"){ %>
+                            <% if (arrayItem.completed =="true") { %>
+                            <% console.log(arrayItem.item) %>
+                            <tr>
+                                <td class="d-flex justify-content-start">
+                                   <form action="/itemCompleted?_method=PUT" method="POST" style="display:inline">
+                                       <div class="form-check" style="display:inline">
+                                          <input type="hidden" name="itemCreated" value="<%=arrayItem.itemCreated %>">
+                                          <input type="hidden" name="dateCompleted" value="">
+                                          <input type="hidden" name="completed" value="false">
+                                          <input class="form-check-input active" type="checkbox" id="checkbox" checked onChange="this.form.submit()">
+                                        </div>
+                                    </form>
+                                    <span id="strike"><%= arrayItem.item %></span>
+                                </td>
+                                <% if (arrayItem.dueDate){ %>
+                                <td  style="white-space: nowrap; font-size: 0.8rem"><p style="margin-bottom:0; color:green" >Due: <%= moment(arrayItem.dueDate).format("DD/MM/YY") %></p><p style="margin-bottom:0; color:red">Done: <%= arrayItem.dateCompleted %></p></td>
+                                <% } else { %>
+                                 <td  style="white-space: nowrap; font-size: 0.8rem"><p style="margin-bottom:0; color:green" >Due: no date</p><p style="margin-bottom:0; color:red">Done: <%= arrayItem.dateCompleted %></p></td>
+                                <% } %>
+                                <td><%= "Completed" %></td> 
+                                <td   style="white-space: nowrap">
+                                    <form action="/itemRemoved/<%=list._id%>?_method=PUT" method="POST">
+                                        <input type="hidden" name="itemCreated" value="<%=arrayItem.itemCreated %>">
+                                        <input type="hidden" name="completed" value="true">
+                                       <button type="submit" class="form-control trash" name="removed" value="true" ><i class="far fa-trash-alt" id="trashCan"></i></button>
+                                    </form>
+                                </td>  
+                            </tr>
+                            <% } %>
+                        <% } %>
+                    <% }) %>
+                    
+                    </tbody>
+               </table>
+              </div> 
+            <% } %>
+
+
+<!--Add Item Form-->
+
+               <form action="/addItem/<%= list._id %>?_method=PUT" method="POST">
+                   <div class="form-row">
+                       <div class="form-group col-12">
+                            <input type="text" name="item" placeholder="Enter new task" class="form-control taskButton">
+                       </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 mx-0.25">
+                            <input type="date" name="dueDate" class="form-control taskButton" onfocus="(this.placeholder='')" placeholder="Date Due">
+                        </div>
+                        <div class="form-group col-3">
+                            <input type="hidden" name="itemCreated" value=<%= Date.now() %> >
+                            <input type="hidden" name="removed" value="false">
+                            <input type="hidden" name="completed" value="false">
+                            <input type="submit" value="Add" class="form-control btn btn-outline-primary taskButton">
+                        </div>
+                     </div>
+               </form>
+            <% if (completedCount == 0){ %>
+                <h5>All items on this list are complete</h5>
+            <% } %>
+    </div>  
+<% } %>
+<% }); %>
+</div>
+<% } %>
+
+
+
+<!--Event items-->
+        <% if (events.length){ %>
+        <% if (!lists.length) { %>
+        <div class="col d-flex justify-content-center" style="background-color: orange">
+        <% } %>
+        <div class="col col-lg-6 col-med-12 col-sm-12">
+        
+        <h3 class="d-flex justify-content-center eventHeading">Events</h3>
+        <% events.forEach(function(event){ %>
+            <% if (event.show) { %>
+            <div class="mb-5" id="eventDisplay">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="d-inline-flex mb-0 eventHeading"><%= event.title %></h4>
+                        <div class="d-inline-flex">
+            
+                            <form action="/deleteEventList/<%=event._id%>?_method=DELETE" method="POST" onsubmit="return confirm('Warning: If you proceed this event list will be permanently deleted. If you want to return, click Cancel.')">
+                                <button type="submit" class="form-control trash"  %>><i class="far fa-trash-alt" id="trashCan"></i></button>
+                            </form>
+                        </div>
+                    </div>
+            
+            <% if (sortedEventDifferenceArray) { %>
+               <div class="table-responsive">
+               <table class="table table-sm table-hover">
+                   <thead>
+                       <tr>
+                       <th scope="col">Event</th>
+                       <th scope="col">Date</th>
+                       <th scope="col">Days</th>
+                       <th scope="col">Edit/Delete</th>
+                       </tr>
+                    </thead>
+                   <tbody>
+                        
+                    <% sortedEventDifferenceArray.forEach(function(sortedEvent){ %>
+
+                        <% event.eventList.forEach(function(eventItem){ %>
+                       <% if (sortedEvent.eventTitle == event.title){ %>
+                                 <% if (sortedEvent.eventCreated == eventItem.eventCreated) { %> 
+                                <tr>
+                                    <td class="d-flex justify-content-start">
+                                    <%= eventItem.event %>
+                                    </td>
+                                
+                                    <td  style="white-space: nowrap"><p><%= moment(eventItem.eventDueDate).format("DD/MM/YY") %></p></td>  
+                                
+                                    <% var dueToday = moment(eventItem.eventDueDate)%>    
+                                    <% var daysToDue = dueToday.diff(today, 'days') %>
+                                    
+                                    <% if (daysToDue == 0) { %>
+                                    <td style="color:IndianRed;">Today</td>    
+                                    <% } else { %>
+                                    <td ><%= daysToDue %></td> 
+                                    <% } %>
+                                    <td>
+                                        <form action="/eventEditForm/<%=event._id%>" method="POST">
+                                        <div class="form-inline justify-content-center">
+                                            <input type="hidden" name="eventCreated" value="<%=eventItem.eventCreated %>">
+                                           <button type="submit" class="form-control trash" ><i class="far fa-edit" id="trashCan"></i></button>
+    
+                                        </form>
+
+                                        <form action="/removeEventItem/<%=event._id%>?_method=PUT" method="POST">
+                                            <input type="hidden" name="eventCreated" value="<%=eventItem.eventCreated %>">
+                                           <button type="submit" class="form-control trash" ><i class="far fa-trash-alt" id="trashCan"></i></button>
+                                        </form>
+                                        </div>
+                                    </td>   
+                                </tr>
+                        <% } %>
+                        <% } %>
+                        <%  }); %>
+                    <% }); %>
+                    </tbody>
+               </table>
+               </div>
+            <% } %>
+
+
+
+<!--Add Event Form-->
+
+               <form action="/addEventItem/<%= event._id %>?_method=PUT" method="POST">
+                   <div class="form-row">
+                       <div class="form-group col-12">
+                            <input type="text" name="event" placeholder="Enter new event" class="form-control eventButton">
+                       </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 mx-0.25">
+                            <input type="date" name="eventDueDate" class="form-control eventButton"  onfocus="(this.placeholder='')" placeholder="Date Due">
+                        </div>
+                        <div class="form-group col-3">
+                            <input type="hidden" name="eventCreated" value=<%= Date.now() %> >
+                            <input type="submit" value="Add" class="form-control btn btn-outline-danger eventButton">
+                        </div>
+                     </div>
+               </form>
+            
+               
+
+            
+                    <div class="form-row">
+                <form action="/eventExpireAutoRemove/<%= event._id %>?_method=PUT" method="POST">
+
+                        <div class="form-check" style="display:inline">
+                         <% if (event.autoRemove) { %>
+                            <input class="form-check-input" type="checkbox" name="autoremove" value="false" id="checkbox" checked onChange="this.form.submit()">
+                            <% } else { %>
+                            <input class="form-check-input" type="checkbox" name="autoremove" value="true" id="checkbox"  onChange="this.form.submit()">
+                        <% } %>
+                        </div>
+                    <span>Automatically remove expired events</span>
+                    </form>
+                    </div>
+            </div>  
+        <% } %>
+<% }); %>
+<% } %>
+</div>
+</div>
+</div>
+</div>
+<% include partials/footer %>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+    
+        <!-- CSS stylesheet-->
+    <link rel="stylesheet" type="text/css" href="/stylesheets/styles.css">
+
+
+    
+    <title>Todo Dashboard</title>
+  </head>
+
+  <body>
+  <nav id="navbarCSS" class="navbar navbar-expand-sm navbar-dark">
+      <button style="border: 1px white solid" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="/main" style="color:white">LISTS<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="/archiveList" style="color:white">ARCHIVES</a>
+        </div>
+  
+    
+      <ul class="navbar-nav ml-auto">
+        <% if (!currentUser) { %>
+          <a class="nav-item nav-link" href="/login" style="color:white">LOGIN</a>
+        <% } else { %>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout" style="color:white">LOGOUT</a>
+        </li>
+        <li>
+          <a class="nav-link" href="" style="color:white">Logged in as <%= currentUser.username %></a> 
+        </li>
+  
+        <% } %>
+      </ul>
+    </div>
+  </nav>
+
+<br>
+<div class="container">
+   <% if (error && error.length > 0){%>
+   <div class= "alert alert-danger" role="alert">
+     <%= error %>
+    <% } %>
+    </div>
+</div>
+<div class="container">
+    <% if (success && success.length >0){%>
+      <div class= "alert alert-success" role="alert">
+        <%= success %>
+    <% } %>
+    </div>
+</div>
+<div class="container">
+    <% if (warning && warning.length >0){%>
+      <div class= "alert alert-warning" role="alert">
+        <%= warning %>
+    <% } %>
+    </div>
+</div> 

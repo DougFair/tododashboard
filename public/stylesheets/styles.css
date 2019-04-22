@@ -1,0 +1,179 @@
+body {
+    background-color: white;
+    font-family: arial;
+    font-weight: 200;
+}
+
+
+table {
+    text-align: center;
+    white-space: normal;
+    border: 1px solid lightsteelblue;
+    background-color: whitesmoke;
+}
+
+li {
+    margin: 0;
+    padding: 0;
+}
+
+
+input[type='date']:after {
+  content: attr(placeholder)
+}
+
+.dateBarSpan {
+    color: slategrey;
+}
+
+.btn.taskButton {
+   color: steelblue;
+   background-color: white;
+   border: 1px solid steelblue;
+}
+
+
+.btn.eventButton {
+   color: indianRed;
+   background-color: white;
+   border: 1px solid indianRed;
+}
+
+.trash {
+    background-color: transparent;
+    border: none;
+}
+
+.dashboardTaskHead {
+    text-align: center;
+    color: steelblue;
+}
+
+.dashboardEventHead {
+    text-align: center;
+    color: IndianRed;
+}
+
+.heading {
+    color:steelblue;
+}
+
+.lightheading {
+    color:lightsteelblue;
+}
+
+.listfont {
+    color:grey;
+}
+
+.eventHeading {
+    color: IndianRed;
+}
+
+.pageHeading {
+    color: slategrey;
+}
+
+.taskButton.form-control:focus  {
+  border-color: steelblue !important;
+}
+
+.eventButton.form-control:focus  {
+  border-color: red !important;
+}
+
+.navbar-toggler {
+    border: 1px solid white;
+}
+
+#trashCan{
+    color:red;
+    background-color: transparent;
+}
+
+#dashboardTask {
+    background-color: white;
+    height: auto;
+    border: 2px steelblue solid;
+    text-align: left;
+    font-weight: 100;
+    border-radius: 10px;
+    margin-top: 5px;
+    color:grey;
+}
+
+#dashboardEvent {
+    background-color: white;
+    height: auto;
+    border: 2px IndianRed solid;
+    text-align: left;
+    font-weight: 100;
+    border-radius: 10px;
+    margin-top: 5px;
+    color:grey;
+}
+
+
+#dateBar {
+    background-color: white;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 1px solid lightsteelblue;
+    margin-bottom: 10px;
+}
+
+
+#createList {
+
+}
+
+#fluid {
+    border: 1px solid black;
+}
+
+#strike {
+    color:red;
+    text-decoration: line-through;
+}
+
+#unstrike {
+    color:green;
+}
+
+#listDisplay{
+    background-color: white;
+    border: 2px solid lightsteelblue;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#eventDisplay{
+    background-color: white;
+    border: 2px solid IndianRed;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#temperature{
+    color:slategrey;
+}
+
+#listTypeForm{
+    border-color:lightsteelblue;
+}
+
+#navbarCSS {
+    background-color: steelblue;
+}
+
+#controlCentre {
+    /*border: 1px solid lightsteelblue;*/
+    /*border-radius: 10px;*/
+    height:1%;
+    overflow: hidden;
+}
+
+#registerPage{
+    min-height: 60vh;
+}
+
